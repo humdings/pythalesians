@@ -40,10 +40,14 @@ import numpy as np
 from pythalesians.graphics.graphs.lowleveladapters.adaptertemplate import AdapterTemplate
 
 from pythalesians.util.constants import Constants
+from pythalesians.graphics.graphs.graphproperties import GraphProperties
 
 class AdapterPyThalesians(AdapterTemplate):
 
+
     def plot_2d_graph(self, data_frame, gp, chart_type):
+        if gp is None:
+            gp = GraphProperties()
         if gp.resample is not None: data_frame = data_frame.asfreq(gp.resample)
 
         # set the matplotlib style sheet & defaults

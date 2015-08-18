@@ -26,13 +26,13 @@ class Constants:
     def __init__(self):
 
         ###### CHANGE THIS TO REFER TO YOUR OWN ROOT FOLDER
-        self.root_pythalesians_folder = "D:/Remote/pythalesians/pythalesians/"
-        self.temp_pythalesians_folder = self.root_pythalesians_folder + "temp"
+        self.root_pythalesians_folder = "/Users/dedwards/repos/pythalesians/pythalesians/"
+        self.temp_pythalesians_folder = self.root_pythalesians_folder + "temp/"
 
         ###### FOR FUTURE VERSIONS (which include caching) - DO NOT REMOVE!
         # folders for holding market data
-        self.folder_time_series_data = "D:/timeseriesdata"
-        self.folder_historic_CSV = "D:/tickdata/historicCSV"
+        self.folder_time_series_data = "/Users/dedwards/repos/pythalesians/data/timeseriesdata/"
+        self.folder_historic_CSV = "/Users/dedwards/repos/pythalesians/data/tickdata/historicCSV/"
 
         # config file for time series categories
         self.time_series_categories_fields = \
@@ -115,7 +115,7 @@ class Constants:
         self.plotly_streaming_key = "x2"
 
         # Quandl settings
-        self.quandl_api_key = "x"
+        self.quandl_api_key = "Zxe9tQit1MEJtjzuPgQU"
 
         # Twitter settings (you need to set these up on Twitter)
         self.APP_KEY             = "x"

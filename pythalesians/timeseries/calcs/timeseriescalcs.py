@@ -108,7 +108,8 @@ class TimeSeriesCalcs:
         DataFrame
         """
         return pandas.DataFrame(
-            signal_data_frame.shift(period_shift).values * returns_data_frame.values, index = returns_data_frame.index)
+            signal_data_frame.shift(period_shift).values * returns_data_frame.values,
+            index = returns_data_frame.index, )
 
     def calculate_signal_returns_with_tc(self, signal_data_frame, returns_data_frame, tc, period_shift = 1):
         """
@@ -154,7 +155,8 @@ class TimeSeriesCalcs:
         """
         return pandas.DataFrame(
             signal_data_frame.shift(period_shift).values * returns_data_frame.values -
-                (numpy.abs(signal_data_frame.shift(period_shift).values - signal_data_frame.values) * tc), index = returns_data_frame.index)
+                (numpy.abs(signal_data_frame.shift(period_shift).values - signal_data_frame.values) * tc),
+            index = returns_data_frame.index)
 
     def calculate_returns(self, data_frame, period_shift = 1):
         """
@@ -233,7 +235,8 @@ class TimeSeriesCalcs:
             except:
                 ind = 0
 
-            if ind > 0: ind = ind - 1
+            if ind > 0:
+                ind = ind - 1
 
             first_ord_indices.append(ind)
 

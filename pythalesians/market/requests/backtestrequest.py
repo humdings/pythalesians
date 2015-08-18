@@ -7,7 +7,7 @@ from pythalesians.market.requests.timeseriesrequest import TimeSeriesRequest
 class BacktestRequest(TimeSeriesRequest):
 
     def __init__(self):
-        super(TimeSeriesRequest, self).__init__()
+        # super(TimeSeriesRequest, self).__init__()
         self.logger = LoggerManager().getLogger(__name__)
 
     @property

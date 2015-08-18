@@ -27,7 +27,7 @@ from pythalesians.util.constants import Constants
 class LoaderQuandl(LoaderTemplate):
 
     def __init__(self):
-        super(LoaderQuandl, self).__init__()
+        # super(LoaderQuandl, self).__init__()
         self.logger = LoggerManager().getLogger(__name__)
 
     # implement method in abstract superclass

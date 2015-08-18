@@ -27,8 +27,8 @@ from pythalesians.timeseries.calcs.timeseriescalcs import TimeSeriesCalcs
 from pythalesians.timeseries.calcs.timeseriesdesc import TimeSeriesDesc
 from pythalesians.util.loggermanager import LoggerManager
 
-class CashBacktest:
 
+class CashBacktest:
     def __init__(self):
         self.logger = LoggerManager().getLogger(__name__)
         self._pnl = None
@@ -54,12 +54,12 @@ class CashBacktest:
         tsc = TimeSeriesCalcs()
 
         # make sure the dates of both traded asset and signal are aligned properly
-        asset_df, signal_df = asset_a_df.align(signal_df, join='left', axis = 0)
+        asset_df, signal_df = asset_a_df.align(signal_df, join='left', axis=0)
 
         # only allow signals to change on the days when we can trade assets
-        signal_df = signal_df.mask(numpy.isnan(asset_df.values))    # fill asset holidays with NaN signals
-        signal_df = signal_df.fillna(method='ffill')                # fill these down
-        asset_df = asset_df.fillna(method='ffill')                  # fill down asset holidays
+        signal_df = signal_df.mask(numpy.isnan(asset_df.values))  # fill asset holidays with NaN signals
+        signal_df = signal_df.fillna(method='ffill')  # fill these down
+        asset_df = asset_df.fillna(method='ffill')  # fill down asset holidays
 
         returns_df = tsc.calculate_returns(asset_df)
         tc = br.spot_tc_bp
@@ -74,26 +74,31 @@ class CashBacktest:
 
         if hasattr(br, 'signal_vol_adjust'):
             if br.signal_vol_adjust is True:
-                leverage_df = self.calculate_leverage_factor(returns_df, br.signal_vol_target, br.signal_vol_max_leverage,
-                                               br.signal_vol_periods, br.signal_vol_obs_in_year,
-                                               br.signal_vol_rebalance_freq)
-
+                leverage_df = self.calculate_leverage_factor(
+                    returns_df,
+                    br.signal_vol_target,
+                    br.signal_vol_max_leverage,
+                    br.signal_vol_periods, br.signal_vol_obs_in_year,
+                    br.signal_vol_rebalance_freq
+                )
                 signal_df = pandas.DataFrame(
-                    signal_df.values * leverage_df.values, index = signal_df.index, columns = signal_df.columns)
+                    signal_df.values * leverage_df.values,
+                    index=signal_df.index, columns=signal_df.columns)
 
                 self._individual_leverage = leverage_df
 
-        _pnl = tsc.calculate_signal_returns_with_tc_matrix(signal_df, returns_df, tc = tc)
+        _pnl = tsc.calculate_signal_returns_with_tc_matrix(signal_df, returns_df, tc=tc)
         _pnl.columns = pnl_cols
 
         # portfolio is average of the underlying signals
-        interim_portfolio = pandas.DataFrame(data = _pnl.mean(axis = 1), index = _pnl.index, columns = ['Portfolio'])
+        interim_portfolio = pandas.DataFrame(data=_pnl.mean(axis=1), index=_pnl.index, columns=['Portfolio'])
 
-        portfolio_leverage_df = pandas.DataFrame(data = numpy.ones(len(_pnl.index)), index = _pnl.index, columns = ['Portfolio'])
+        portfolio_leverage_df = pandas.DataFrame(data=numpy.ones(len(_pnl.index)), index=_pnl.index,
+                                                 columns=['Portfolio'])
 
         if hasattr(br, 'portfolio_vol_adjust'):
             if br.portfolio_vol_adjust is True:
-                interim_portfolio, portfolio_leverage_df = self.calculate_vol_adjusted_returns(interim_portfolio, br = br)
+                interim_portfolio, portfolio_leverage_df = self.calculate_vol_adjusted_returns(interim_portfolio, br=br)
 
         self._portfolio = interim_portfolio
         self._signal = signal_df
@@ -101,11 +106,11 @@ class CashBacktest:
 
         # multiply portfolio leverage * individual signals to get final position signals
         length_cols = len(signal_df.columns)
-        leverage_matrix = numpy.repeat(portfolio_leverage_df.values.flatten()[numpy.newaxis,:], length_cols, 0)
+        leverage_matrix = numpy.repeat(portfolio_leverage_df.values.flatten()[numpy.newaxis, :], length_cols, 0)
 
         self._portfolio_signal = pandas.DataFrame(
-            data = numpy.multiply(numpy.transpose(leverage_matrix), signal_df.values),
-            index = signal_df.index, columns = signal_df.columns) / float(length_cols)
+            data=numpy.multiply(numpy.transpose(leverage_matrix), signal_df.values),
+            index=signal_df.index, columns=signal_df.columns) / float(length_cols)
 
         self._pnl = _pnl
 
@@ -141,11 +146,11 @@ class CashBacktest:
 
         tsc = TimeSeriesCalcs()
 
-        returns_df, leverage_df = self.calculate_vol_adjusted_returns(prices_df, br, returns = False)
+        returns_df, leverage_df = self.calculate_vol_adjusted_returns(prices_df, br, returns=False)
 
         return tsc.create_mult_index(returns_df)
 
-    def calculate_vol_adjusted_returns(self, returns_df, br, returns = True):
+    def calculate_vol_adjusted_returns(self, returns_df, br, returns=True):
         """
         calculate_vol_adjusted_returns - Adjusts returns for a vol target
 
@@ -164,20 +169,22 @@ class CashBacktest:
 
         tsc = TimeSeriesCalcs()
 
-        if not returns: returns_df = tsc.calculate_returns(returns_df)
+        if not returns:
+            returns_df = tsc.calculate_returns(returns_df)
 
-        leverage_df = self.calculate_leverage_factor(returns_df,
-                                                               br.portfolio_vol_target, br.portfolio_vol_max_leverage,
-                                                               br.portfolio_vol_periods, br.portfolio_vol_obs_in_year,
-                                                               br.portfolio_vol_rebalance_freq)
+        leverage_df = self.calculate_leverage_factor(
+            returns_df,
+            br.portfolio_vol_target, br.portfolio_vol_max_leverage,
+            br.portfolio_vol_periods, br.portfolio_vol_obs_in_year,
+            br.portfolio_vol_rebalance_freq)
 
-        vol_returns_df = tsc.calculate_signal_returns_with_tc_matrix(leverage_df, returns_df, tc = br.spot_tc_bp)
+        vol_returns_df = tsc.calculate_signal_returns_with_tc_matrix(leverage_df, returns_df, tc=br.spot_tc_bp)
         vol_returns_df.columns = returns_df.columns
 
         return vol_returns_df, leverage_df
 
-    def calculate_leverage_factor(self, returns_df, vol_target, vol_max_leverage, vol_periods = 60, vol_obs_in_year = 252,
-                                  vol_rebalance_freq = 'BM', returns = True, period_shift = 0):
+    def calculate_leverage_factor(self, returns_df, vol_target, vol_max_leverage, vol_periods=60, vol_obs_in_year=252,
+                                  vol_rebalance_freq='BM', returns=True, period_shift=0):
         """
         calculate_leverage_factor - Calculates the time series of leverage for a specified vol target
 
@@ -214,10 +221,11 @@ class CashBacktest:
 
         tsc = TimeSeriesCalcs()
 
-        if not returns: returns_df = tsc.calculate_returns(returns_df)
+        if not returns:
+            returns_df = tsc.calculate_returns(returns_df)
 
         roll_vol_df = tsc.rolling_volatility(returns_df,
-                                        periods = vol_periods, obs_in_year = vol_obs_in_year).shift(period_shift)
+                                             periods=vol_periods, obs_in_year=vol_obs_in_year).shift(period_shift)
 
         # calculate the leverage as function of vol target (with max lev constraint)
         lev_df = vol_target / roll_vol_df
@@ -226,7 +234,7 @@ class CashBacktest:
         # only allow the leverage change at resampling frequency (eg. monthly 'BM')
         lev_df = lev_df.resample(vol_rebalance_freq)
 
-        returns_df, lev_df = returns_df.align(lev_df, join='left', axis = 0)
+        returns_df, lev_df = returns_df.align(lev_df, join='left', axis=0)
 
         lev_df = lev_df.fillna(method='ffill')
 
@@ -354,6 +362,7 @@ class CashBacktest:
         """
 
         return self._signal
+
 
 if __name__ == '__main__':
     # see cashbacktest_examples
